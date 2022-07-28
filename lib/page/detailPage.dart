@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:aplikasi_resto/genosLib/component/button/genButton.dart';
 import 'package:aplikasi_resto/genosLib/component/radiobutton/genRadioMini.dart';
 import 'package:aplikasi_resto/genosLib/component/textfiled/TextField.dart';
@@ -23,6 +25,16 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      String id = ModalRoute.of(context)!.settings.arguments as String;
+      log("Argument Value " + id);
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GenPage(
@@ -127,7 +139,9 @@ class _DetailPageState extends State<DetailPage> {
                       onChanged: (value) => print(value),
                     ),
                   ),
-                  SizedBox(height: 10,),
+                  SizedBox(
+                    height: 10,
+                  ),
                   GenButton(
                     text: "Tambah di keranjang",
                     ontap: () {

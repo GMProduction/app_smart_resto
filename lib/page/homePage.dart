@@ -1,4 +1,10 @@
+import 'dart:developer';
+
+import 'package:aplikasi_resto/controller/categories.dart';
+import 'package:aplikasi_resto/controller/items.dart';
 import 'package:aplikasi_resto/genosLib/component/radiobutton/genRadioMini.dart';
+import 'package:aplikasi_resto/helper/page-loading.dart';
+import 'package:aplikasi_resto/helper/static_variable.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:custom_radio_grouped_button/custom_radio_grouped_button.dart';
 import 'package:flutter/cupertino.dart';
@@ -22,6 +28,18 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   ValueNotifier<bool> isDialOpen = ValueNotifier(false);
+  List<dynamic> _categories = [];
+  List<dynamic> _items = [];
+  bool isLoading = true;
+  bool isLoadingItem = true;
+  String _categoryId = "0";
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    _getListCategories();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,105 +86,114 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         children: [
           Container(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Container(
-                    height: 50,
-                    child: CustomRadioButton(
-                      elevation: 0,
-                      absoluteZeroSpacing: true,
-                      unSelectedColor: Theme.of(context).canvasColor,
-                      buttonLables: [
-                        'Makanan',
-                        'Minuman',
-                        'Snack',
-                      ],
-                      buttonValues: [
-                        "Makanan",
-                        "Minuman",
-                        "Snack",
-                      ],
-                      defaultSelected: "Makanan",
-                      buttonTextStyle: ButtonTextStyle(
-                          selectedColor: Colors.white,
-                          unSelectedColor: Colors.black,
-                          textStyle: TextStyle(fontSize: 16)),
-                      radioButtonValue: (value) {
-                        print(value);
-                      },
-                      selectedColor: Theme.of(context).accentColor,
-                      enableShape: true,
-                      margin: EdgeInsets.symmetric(horizontal: 10),
-                    ),
-                    // GenRadioGroupMiniInString(listData: data,
-                    //   id: "id",
-                    //   title: "title",
-                    //   ontap: (){},
-                    //
-                    // )
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  RowSpaceBetween(
-                    chilidLeft: GenText(
-                      "Makanan yang Tersedia",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                    ),
-                    childRight: InkWell(
-                        onTap: () {
-                          //PINDAH KE HALAMAN LIHAT SEMUA ARTIKEL
-                        },
-                        child: GenText(
-                          "",
-                          style: TextStyle(color: GenColor.primaryColor),
-                        )),
-                  ),
-                  SizedBox(
-                    height: GenDimen.afterTitle,
-                  ),
-                  Column(
+            height: double.infinity,
+            child: isLoading
+                ? PageLoading()
+                : Column(
                     children: [
-                      GenCardArtikel(
-                        ontap: () {
-                          Navigator.pushNamed(context, "detail");
-                        },
-                        judul: "Nasi Goreng Sosis",
-                        isi: "Nasi goreng dengan potongan sosis besar",
-                        harga: "Rp 20.000",
-                        gambar:
-                            "https://sweetrip.id/wp-content/uploads/2021/11/resep-nasi-goreng-setan.jpg",
+                      Container(
+                        height: 50,
+                        child: CustomRadioButton(
+                          elevation: 0,
+                          absoluteZeroSpacing: true,
+                          unSelectedColor: Theme.of(context).canvasColor,
+                          buttonLables: _categories.map((e) {
+                            return e['nama'].toString();
+                          }).toList(),
+                          buttonValues: _categories.map((e) {
+                            return e['id'].toString();
+                          }).toList(),
+                          defaultSelected: _categories.length > 0
+                              ? _categories[0]['id'].toString()
+                              : null,
+                          buttonTextStyle: ButtonTextStyle(
+                              selectedColor: Colors.white,
+                              unSelectedColor: Colors.black,
+                              textStyle: TextStyle(fontSize: 16)),
+                          radioButtonValue: (value) {
+                            String id = value.toString();
+                            _getListItemByCategory(id);
+                          },
+                          selectedColor: Theme.of(context).accentColor,
+                          enableShape: true,
+                          width: 200,
+                          margin: EdgeInsets.symmetric(horizontal: 10),
+                        ),
+                        // GenRadioGroupMiniInString(listData: data,
+                        //   id: "id",
+                        //   title: "title",
+                        //   ontap: (){},
+                        //
+                        // )
                       ),
-                      GenCardArtikel(
-                        ontap: () {
-                          Navigator.pushNamed(context, "detail");
-                        },
-                        judul: "Nasi Goreng Sea Food",
-                        isi: "Nasi goreng dengan potongan Udang besar",
-                        harga: "Rp 25.000",
-                        gambar:
-                            "https://cdn0-production-images-kly.akamaized.net/xDdS1k6neUXJAM802YbCU8HOZgE=/1200x675/smart/filters:quality(75):strip_icc():format(webp)/kly-media-production/medias/4018264/original/019930600_1652166761-american-shrimp-fried-rice-served-with-chili-fish-sauce-thai-food__1_.jpg",
+                      SizedBox(
+                        height: 20,
                       ),
-                      GenCardArtikel(
-                        ontap: () {
-                          Navigator.pushNamed(context, "detail");
-                        },
-                        judul: "Mie Goreng Spesial",
-                        isi: "Mie goreng dengan potongan Udang besar",
-                        harga: "Rp 15.000",
-                        gambar:
-                            "https://img.okezone.com/content/2022/06/06/298/2606641/segini-kalori-mie-goreng-kesukaan-kamu-jangan-kaget-ya-kltyXigXMx.jpg",
+                      RowSpaceBetween(
+                        chilidLeft: GenText(
+                          "Menu yang Tersedia",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                        childRight: InkWell(
+                            onTap: () {
+                              //PINDAH KE HALAMAN LIHAT SEMUA ARTIKEL
+                            },
+                            child: GenText(
+                              "",
+                              style: TextStyle(color: GenColor.primaryColor),
+                            )),
                       ),
+                      SizedBox(
+                        height: GenDimen.afterTitle,
+                      ),
+                      isLoadingItem
+                          ? Expanded(child: PageLoading())
+                          : Expanded(
+                              child: RefreshIndicator(
+                                onRefresh: () {
+                                  return refresh();
+                                },
+                                child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                  return SingleChildScrollView(
+                                    physics: AlwaysScrollableScrollPhysics(),
+                                    child: _items.length <= 0
+                                        ? Container(
+                                            height: 200,
+                                            child: Center(
+                                              child: Text(
+                                                  "Maaf menu belum tersedia..."),
+                                            ),
+                                          )
+                                        : Column(
+                                            children: _items
+                                                .map((e) => GenCardArtikel(
+                                                      ontap: () {
+                                                        Navigator.pushNamed(
+                                                            context, "detail",
+                                                            arguments: e['id']
+                                                                .toString());
+                                                      },
+                                                      judul:
+                                                          e['nama'].toString(),
+                                                      isi: e['deskripsi']
+                                                          .toString(),
+                                                      harga:
+                                                          "Rp ${e['harga'].toString()}",
+                                                      gambar:
+                                                          "$BaseHostImage${e['gambar'].toString()}",
+                                                    ))
+                                                .toList()),
+                                  );
+                                }),
+                              ),
+                            ),
+                      // SizedBox(
+                      //   height: 100,
+                      // ),
                     ],
                   ),
-                  SizedBox(
-                    height: 100,
-                  ),
-                ],
-              ),
-            ),
           ),
           Positioned(
             bottom: 20,
@@ -224,5 +251,36 @@ class _HomePageState extends State<HomePage> {
       //   child: const Icon(Icons.shopping_cart),
       // ),
     );
+  }
+
+  void _getListCategories() async {
+    setState(() {
+      isLoading = true;
+    });
+    List<dynamic> _list = await getCategoriesList();
+    setState(() {
+      _categories = _list;
+      isLoading = false;
+    });
+    if (_list.length > 0) {
+      String id = _list[0]['id'].toString();
+      _getListItemByCategory(id);
+    }
+  }
+
+  void _getListItemByCategory(String id) async {
+    setState(() {
+      isLoadingItem = true;
+      _categoryId = id;
+    });
+    List<dynamic> _list = await getItemByCategory(id);
+    setState(() {
+      _items = _list;
+      isLoadingItem = false;
+    });
+  }
+
+  refresh() async {
+    _getListItemByCategory(_categoryId);
   }
 }

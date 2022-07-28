@@ -12,7 +12,7 @@ class _WelcomePageState extends State<WelcomePage> {
   final introKey = GlobalKey<IntroductionScreenState>();
 
   void _onIntroEnd(context) {
-    Navigator.pushReplacementNamed(context, "home");
+    Navigator.pushReplacementNamed(context, "login");
   }
 
   Widget _buildFullscreenImage() {
@@ -66,9 +66,9 @@ class _WelcomePageState extends State<WelcomePage> {
       // ),
       pages: [
         PageViewModel(
-          title: "Order Makanan",
+          title: "Sang Ndoro Coffee App",
           body:
-          "Order makanan lewat aplikasi, secara mudah dan cepat",
+          "Pesan kopi lewat aplikasi, secara mudah dan cepat",
           image: _buildImage('images/order.png'),
           decoration: pageDecoration,
         ),

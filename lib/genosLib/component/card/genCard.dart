@@ -21,7 +21,7 @@ class GenCard extends StatelessWidget {
   final Function()? ontap;
 
   GenCard(
-      {this.ontap ,
+      {this.ontap,
       this.radius = 10,
       this.height = double.infinity - 20,
       this.shadowRadius,
@@ -36,7 +36,7 @@ class GenCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: ontap == null ?  (){} : ontap,
+      onTap: ontap == null ? () {} : ontap,
       child: Container(
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(radius),
@@ -66,7 +66,6 @@ class GenCardVertical extends StatelessWidget {
     this.judul = "-",
     this.kota = "-",
     this.tanggal = "-",
-
   });
 
   @override
@@ -142,7 +141,7 @@ class GenCardArtikel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GenCard(
-      ontap: ontap ?? (){},
+      ontap: ontap ?? () {},
       width: double.infinity,
       padding: EdgeInsets.all(10),
       margin: EdgeInsets.symmetric(
@@ -182,8 +181,14 @@ class GenCardArtikel extends StatelessWidget {
                             GenText(judul,
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 15)),
-                            SizedBox(width: 5,),
-                            badges == null  ? Container() : Badgesred(text: "4",)
+                            SizedBox(
+                              width: 5,
+                            ),
+                            badges == null
+                                ? Container()
+                                : Badgesred(
+                                    text: "4",
+                                  )
                           ],
                         ),
                         SizedBox(
