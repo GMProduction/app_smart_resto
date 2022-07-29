@@ -1,8 +1,11 @@
 import 'dart:developer';
 
+import 'package:aplikasi_resto/controller/cart.dart';
+import 'package:aplikasi_resto/controller/items.dart';
 import 'package:aplikasi_resto/genosLib/component/button/genButton.dart';
 import 'package:aplikasi_resto/genosLib/component/radiobutton/genRadioMini.dart';
 import 'package:aplikasi_resto/genosLib/component/textfiled/TextField.dart';
+import 'package:aplikasi_resto/helper/static_variable.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:custom_radio_grouped_button/custom_radio_grouped_button.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,12 +28,17 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
+  Map<String, dynamic> _dataItem = {};
+  int _qty = 1;
+  String _deskripsi = '';
+  String _itemId = "0";
   @override
   void initState() {
     // TODO: implement initState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       String id = ModalRoute.of(context)!.settings.arguments as String;
       log("Argument Value " + id);
+      _getMenuById(id);
     });
     super.initState();
   }
@@ -86,7 +94,7 @@ class _DetailPageState extends State<DetailPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Image.network(
-                        "https://sweetrip.id/wp-content/uploads/2021/11/resep-nasi-goreng-setan.jpg",
+                        "$BaseHostImage${_dataItem['gambar'].toString()}",
                         width: double.infinity,
                         height: 200,
                         fit: BoxFit.cover),
@@ -96,12 +104,12 @@ class _DetailPageState extends State<DetailPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             GenText(
-                              "Nasi Goreng Sosis",
+                              _dataItem['nama'].toString(),
                               textAlign: TextAlign.left,
                               style: TextStyle(fontSize: 24),
                             ),
                             GenText(
-                              "Rp 20.000",
+                              "Rp ${_dataItem['harga'].toString()}",
                               textAlign: TextAlign.left,
                               style: TextStyle(
                                   fontSize: 20,
@@ -112,13 +120,29 @@ class _DetailPageState extends State<DetailPage> {
                               height: 20,
                             ),
                             GenText(
-                              "Nasi goreng yang di goreng dengan potongan sosis jumbo",
+                              _dataItem['deskripsi'].toString(),
                               textAlign: TextAlign.left,
                             ),
                             SizedBox(
                               height: 20,
                             ),
-                            TextLoginField(label: "Catatan")
+                            Container(
+                              margin: EdgeInsets.only(bottom: 15),
+                              child: TextField(
+                                onChanged: (text) {
+                                  setState(() {
+                                    _deskripsi = text;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    contentPadding:
+                                        EdgeInsets.symmetric(horizontal: 10),
+                                    hintText: "Catatan"),
+                              ),
+                            ),
                           ],
                         ))
                   ],
@@ -136,7 +160,11 @@ class _DetailPageState extends State<DetailPage> {
                       min: 1,
                       max: 100,
                       value: 1,
-                      onChanged: (value) => print(value),
+                      onChanged: (value) {
+                        setState(() {
+                          _qty = value.toInt();
+                        });
+                      },
                     ),
                   ),
                   SizedBox(
@@ -145,7 +173,7 @@ class _DetailPageState extends State<DetailPage> {
                   GenButton(
                     text: "Tambah di keranjang",
                     ontap: () {
-                      Navigator.pushNamed(context, "keranjang");
+                      _addToCart(context);
                     },
                   ),
                 ],
@@ -155,5 +183,23 @@ class _DetailPageState extends State<DetailPage> {
         ),
       ),
     );
+  }
+
+  void _getMenuById(String id) async {
+    Map<String, dynamic> _data = await getMenuById(id);
+    setState(() {
+      _dataItem = _data;
+      _itemId = id;
+    });
+    log(_data.toString());
+  }
+
+  void _addToCart(BuildContext context) async {
+    Map<String, dynamic> _data = {
+      "item_id": _itemId,
+      "qty": _qty,
+      "deskripsi": _deskripsi
+    };
+    await addToCart(_data, context);
   }
 }

@@ -5,9 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helper/static_variable.dart';
 
-Future<List<dynamic>> getItemByCategory(String id) async {
+Future<List<dynamic>> listTransaction(String status) async {
   List<dynamic> _results = [];
-  String url = '$HostAddress/item/$id/category';
+  String url = '$HostAddress/transaction?status=$status';
   try {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String? token = preferences.getString("token");
@@ -20,17 +20,17 @@ Future<List<dynamic>> getItemByCategory(String id) async {
         },
       ),
     );
-    log(response.data.toString());
     _results = response.data["payload"] as List;
+    log(_results.toString());
   } on DioError catch (e) {
     log(e.response!.data.toString());
   }
   return _results;
 }
 
-Future<Map<String, dynamic>> getMenuById(String id) async {
+Future<Map<String, dynamic>> getTransactionById(String id) async {
   Map<String, dynamic> _data = {};
-  String url = '$HostAddress/item/$id';
+  String url = '$HostAddress/transaction/$id';
   try {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String? token = preferences.getString("token");

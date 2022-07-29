@@ -1,38 +1,32 @@
-import 'package:aplikasi_resto/controller/cart.dart';
-import 'package:aplikasi_resto/genosLib/component/button/genButton.dart';
-import 'package:aplikasi_resto/genosLib/component/radiobutton/genRadioMini.dart';
-import 'package:aplikasi_resto/genosLib/component/textfiled/TextField.dart';
-import 'package:aplikasi_resto/helper/static_variable.dart';
-import 'package:card_swiper/card_swiper.dart';
-import 'package:custom_radio_grouped_button/custom_radio_grouped_button.dart';
-import 'package:flutter/cupertino.dart';
+import 'dart:developer';
+
+import 'package:aplikasi_resto/controller/transaction.dart';
+import 'package:aplikasi_resto/genosLib/component/page/genPage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinbox/flutter_spinbox.dart';
 
 import '../genosLib/component/card/genCard.dart';
-import '../genosLib/component/etc/genDimen.dart';
-import '../genosLib/component/etc/genRow.dart';
-import '../genosLib/component/etc/genShadow.dart';
-import '../genosLib/component/page/genPage.dart';
-import '../genosLib/genColor.dart';
 import '../genosLib/genText.dart';
+import '../helper/static_variable.dart';
 
-class KeranjangPage extends StatefulWidget {
-  const KeranjangPage({Key? key}) : super(key: key);
-
+class DetailPesananPage extends StatefulWidget {
   @override
-  State<KeranjangPage> createState() => _KeranjangPageState();
+  _DetailPesananPageState createState() => _DetailPesananPageState();
 }
 
-class _KeranjangPageState extends State<KeranjangPage> {
-  List<dynamic> _list = [];
-  int total = 0;
-
+class _DetailPesananPageState extends State<DetailPesananPage> {
+  Map<String, dynamic> _dataItem = {};
+  List<dynamic> _items = [];
   @override
   void initState() {
     // TODO: implement initState
-    _getListCart();
+
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      String id = ModalRoute.of(context)!.settings.arguments as String;
+      log("Argument Value " + id);
+      _getTransactionById(id);
+      // _getMenuById(id);
+    });
   }
 
   @override
@@ -66,7 +60,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
                             // Navigator.of(context).pop();
                           },
                           child: GenText(
-                            "Keranjang Pesanan",
+                            "Detail Pesanan",
                             style: TextStyle(fontSize: 20),
                           ))),
                   // GenText(
@@ -78,20 +72,60 @@ class _KeranjangPageState extends State<KeranjangPage> {
         ),
       ),
       body: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 10,
+        ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            Text(
+              "Detail Pesanan",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Text(
+              "No. Transaksi : ${_dataItem['no_transaksi'].toString()}",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Text(
+              "Status : ${_dataItem['status'].toString()}",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Text(
+              "Data Pesanan",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _list
+                  children: _items
                       .map((e) => GenCardArtikel(
-                            ontap: () {
-                              Navigator.pushNamed(context, "detail");
-                            },
                             judul: e['item']['nama'].toString(),
                             isi: e['item']['deskripsi'].toString(),
-                            harga: "Rp ${e['total'].toString()}",
+                            harga: "Rp ${e['harga'].toString()}",
                             gambar:
                                 "$BaseHostImage${e['item']['gambar'].toString()}",
                             badges: e['qty'].toString(),
@@ -107,20 +141,11 @@ class _KeranjangPageState extends State<KeranjangPage> {
                 children: [
                   GenText("Total Pembayaran"),
                   GenText(
-                    "Rp ${total.toString()}",
+                    "Rp ${_dataItem['total'].toString()}",
                     style: TextStyle(
                         color: Colors.orange,
                         fontWeight: FontWeight.bold,
                         fontSize: 25),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  GenButton(
-                    text: "Checkout",
-                    ontap: () {
-                      checkout(context);
-                    },
                   ),
                 ],
               ),
@@ -131,17 +156,17 @@ class _KeranjangPageState extends State<KeranjangPage> {
     );
   }
 
-  void _getListCart() async {
-    List<dynamic> _data = await listAvailableCart();
+  void _getTransactionById(String id) async {
+    Map<String, dynamic> _data = await getTransactionById(id);
+    List<dynamic> tmpItems = _data['cart'] as List;
     setState(() {
-      _list = _data;
+      _dataItem = _data;
+      _items = tmpItems;
     });
+    log(_data.toString());
+  }
 
-    _data.forEach((element) {
-      int _price = element['total'] as int;
-      setState(() {
-        total += _price;
-      });
-    });
+  refresh() async {
+    _getTransactionById("id");
   }
 }

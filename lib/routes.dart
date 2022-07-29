@@ -1,4 +1,6 @@
 import 'package:aplikasi_resto/page/ChatPage.dart';
+import 'package:aplikasi_resto/page/DetailPesanan.dart';
+import 'package:aplikasi_resto/page/PesananPage.dart';
 import 'package:aplikasi_resto/page/detailPage.dart';
 import 'package:aplikasi_resto/page/homePage.dart';
 import 'package:aplikasi_resto/page/keranjangPage.dart';
@@ -46,6 +48,12 @@ class GenProvider {
 
       'keranjang': (context) {
         return KeranjangPage();
+      },
+      'pesanan': (context) {
+        return PesananPage();
+      },
+      'detail-pesanan': (context) {
+        return DetailPesananPage();
       },
 
       'chat': (context) {

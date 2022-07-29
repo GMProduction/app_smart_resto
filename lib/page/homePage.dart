@@ -220,6 +220,19 @@ class _HomePageState extends State<HomePage> {
                             color: Colors.white,
                             fontSize: 16.0),
                         labelBackgroundColor: Colors.green),
+                    SpeedDialChild(
+                        child: Icon(Icons.note),
+                        backgroundColor: Colors.blue,
+                        onTap: () {
+                          /* do anything */
+                          Navigator.pushNamed(context, "pesanan");
+                        },
+                        label: 'Pesanan',
+                        labelStyle: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                            fontSize: 16.0),
+                        labelBackgroundColor: Colors.blue),
                     // FAB 2
                     SpeedDialChild(
                         child: Icon(Icons.shopping_cart),
@@ -234,7 +247,7 @@ class _HomePageState extends State<HomePage> {
                             fontWeight: FontWeight.w500,
                             color: Colors.white,
                             fontSize: 16.0),
-                        labelBackgroundColor: Colors.orange)
+                        labelBackgroundColor: Colors.orange),
                   ]),
             ),
           )
