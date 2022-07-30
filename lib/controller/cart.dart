@@ -79,7 +79,7 @@ Future<void> checkout(BuildContext context) async {
     );
     log(response.data.toString());
     Fluttertoast.showToast(
-      msg: "Berhasil menambah menu",
+      msg: "Berhasil checkout keranjang...",
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.CENTER,
       timeInSecForIosWeb: 1,
@@ -87,7 +87,7 @@ Future<void> checkout(BuildContext context) async {
       textColor: Colors.white,
       fontSize: 16.0,
     );
-    Navigator.pop(context);
+    Navigator.popAndPushNamed(context, "pesanan");
   } on DioError catch (e) {
     log(e.response!.data.toString());
     Fluttertoast.showToast(

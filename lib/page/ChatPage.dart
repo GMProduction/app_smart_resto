@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:aplikasi_resto/controller/chat.dart';
 import 'package:aplikasi_resto/genosLib/component/etc/commonPadding.dart';
 import 'package:aplikasi_resto/genosLib/component/textfiled/TextField.dart';
 import 'package:flutter/cupertino.dart';
@@ -31,8 +34,10 @@ class _DashboardState extends State<ChatPage> {
   bool chatSend = false;
 
   List<Map<String, dynamic>> chatMessage = [
-    {"member": "send", "message": "hei"},
-    {"member": "receive", "message": "hei"},
+    {
+      "member": false,
+      "message": "Hai, Selamat datang di layanan chat bot Sang Ndoro Coffee"
+    },
   ];
 
   @override
@@ -75,11 +80,10 @@ class _DashboardState extends State<ChatPage> {
                             )))),
                 Expanded(
                   child: HeaderProfile(
-                       image:
+                      image:
                           "https://static.thenounproject.com/png/630729-200.png",
                       vAlign: CrossAxisAlignment.center,
                       photoSize: 30,
-
                       child: Row(
                         children: [
                           Expanded(
@@ -113,87 +117,57 @@ class _DashboardState extends State<ChatPage> {
             children: [
               Expanded(
                 child: CommonPadding(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 30,
+                  child: Column(children: [
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Expanded(
+                        child: SingleChildScrollView(
+                      child: Column(
+                        children: chatMessage.map<Widget>((msg) {
+                          bool isSend = msg["member"];
+                          return Align(
+                            alignment: isSend
+                                ? Alignment.centerRight
+                                : Alignment.centerLeft,
+                            child: Column(
+                              crossAxisAlignment: isSend
+                                  ? CrossAxisAlignment.end
+                                  : CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(15),
+                                            bottomRight: Radius.circular(15),
+                                            topLeft: !isSend
+                                                ? Radius.circular(0)
+                                                : Radius.circular(15),
+                                            topRight: !isSend
+                                                ? Radius.circular(15)
+                                                : Radius.circular(0)),
+                                        color: isSend
+                                            ? GenColor.primaryColor
+                                            : GenColor.shadowLigth),
+                                    padding:
+                                        EdgeInsets.all(GenDimen.sidePadding),
+                                    child: GenText(
+                                      msg["message"],
+                                      style: TextStyle(
+                                          color: !isSend
+                                              ? Colors.black
+                                              : Colors.white),
+                                    )),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
                       ),
-                      Expanded(
-                        child: StreamBuilder(
-                            builder: (context, snapshot) {
-                              if (!snapshot.hasData) {
-                                return Container();
-                              } else {
-//                                print("snapshot " +
-//                                    snapshot.data.documents[0]
-//                                        .data()
-//                                        .toString());
-                                return ListView.builder(
-                                    padding: EdgeInsets.all(8.0),
-                                    // itemCount: snapshot.data.docs.length,
-                                    // controller: _scrollController,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-
-                                      Map<String, dynamic> msg =
-                                          chatMessage[1];
-                                      bool isSend = (msg["member"] == "send");
-
-                                      return Align(
-                                        alignment: isSend
-                                            ? Alignment.centerRight
-                                            : Alignment.centerLeft,
-                                        child: Column(
-                                          crossAxisAlignment: isSend
-                                              ? CrossAxisAlignment.end
-                                              : CrossAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                                decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.only(
-                                                        bottomLeft:
-                                                            Radius.circular(15),
-                                                        bottomRight:
-                                                            Radius.circular(15),
-                                                        topLeft: !isSend
-                                                            ? Radius.circular(0)
-                                                            : Radius.circular(
-                                                                15),
-                                                        topRight: !isSend
-                                                            ? Radius.circular(
-                                                                15)
-                                                            : Radius.circular(
-                                                                0)),
-                                                    color: isSend
-                                                        ? GenColor.primaryColor
-                                                        : GenColor.shadowLigth),
-                                                padding: EdgeInsets.all(
-                                                    GenDimen.sidePadding),
-                                                child: GenText(
-                                                  msg["message"],
-                                                  style: TextStyle(
-                                                      color: !isSend
-                                                          ? Colors.black
-                                                          : Colors.white),
-                                                )),
-                                            GenText(
-                                              "2022 - 17 - 07",
-                                              style: TextStyle(
-                                                  color: Colors.black54,
-                                                  fontSize: 20),
-                                            ),
-                                            SizedBox(
-                                              height: 20.h,
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    });
-                              }
-                            }),
-                      ),
-                    ],
-                  ),
+                    )),
+                  ]),
                 ),
               ),
               CommonPadding(
@@ -234,7 +208,7 @@ class _DashboardState extends State<ChatPage> {
                       child: InkWell(
                         onTap: () {
                           if (chat != '') {
-                            // sendMessage(chat);
+                            _sendChat();
                             txtChat.text = '';
                             chat = '';
 
@@ -258,6 +232,19 @@ class _DashboardState extends State<ChatPage> {
         ));
   }
 
+  void _sendChat() async {
+    Map<String, dynamic> _data = {"quest": chat};
+    setState(() {
+      chatMessage.add({"member": true, "message": chat});
+    });
+
+    String answer = await sendChat(_data);
+    setState(() {
+      chatMessage.add({"member": false, "message": answer});
+    });
+
+    log(answer);
+  }
 //  api/member/chat post: msg: ts: id
 
 // void sendMessage(msg) async {

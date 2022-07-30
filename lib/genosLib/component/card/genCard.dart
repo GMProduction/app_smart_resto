@@ -187,7 +187,7 @@ class GenCardArtikel extends StatelessWidget {
                             badges == null
                                 ? Container()
                                 : Badgesred(
-                                    text: "4",
+                                    text: badges.toString(),
                                   )
                           ],
                         ),
