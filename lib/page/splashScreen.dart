@@ -3,10 +3,10 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../genosLib/genColor.dart';
 import '../genosLib/genText.dart';
-
 
 class SplashScreen extends StatefulWidget {
   SplashScreen({Key? key}) : super(key: key);
@@ -23,36 +23,40 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-
   }
-
 
   @override
   dispose() {
     super.dispose();
   }
 
-
   cekLogin() async {
-
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
-    String appName = packageInfo.appName;
-    String packageName = packageInfo.packageName;
+    // String appName = packageInfo.appName;
+    // String packageName = packageInfo.packageName;
     // buildNumber = packageInfo.version;
     buildNumber = packageInfo.buildNumber;
 
     // var log = await getPrefferenceToken();
 
-    var _duration = Duration(milliseconds: 2000);
-    return Timer(_duration,  (){ log == null
-        ? Navigator.pushReplacementNamed(context, "welcome")
-        : Navigator.pushReplacementNamed(context, "welcome");});
-
-
+    // var _duration = Duration(milliseconds: 2000);
+    await Future.delayed(const Duration(milliseconds: 2000));
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String? token = preferences.getString("token");
+    if (token != null) {
+      Navigator.popAndPushNamed(context, "home");
+    } else {
+      Navigator.pushReplacementNamed(context, "welcome");
+    }
+    // return Timer(_duration, () {
+    //   log == null
+    //       ? Navigator.pushReplacementNamed(context, "welcome")
+    //       : Navigator.pushReplacementNamed(context, "welcome");
+    // });
   }
 
-  startSplashScreen()  {
+  startSplashScreen() {
     cekLogin();
 
     // var token = await getPrefferenceToken();
@@ -72,19 +76,18 @@ class _SplashScreenState extends State<SplashScreen>
     // }
   }
 
-  startAnim(){
-    Timer(Duration(milliseconds: 100),  (){ setState(() {
-      opacity = 1.0;
-    });});
+  startAnim() {
+    Timer(Duration(milliseconds: 100), () {
+      setState(() {
+        opacity = 1.0;
+      });
+    });
   }
 
   bool loaded = false;
   @override
   Widget build(BuildContext context) {
-
-
-
-    if(!loaded){
+    if (!loaded) {
       startAnim();
       startSplashScreen();
       loaded = true;
@@ -103,16 +106,19 @@ class _SplashScreenState extends State<SplashScreen>
                   duration: Duration(milliseconds: 1000),
                   opacity: opacity,
                   child: Image.asset(
-                    'assets/images/logo.png',
-                    width: 300,
+                    'assets/icons/coffee-logo.png',
+                    width: 150,
                     fit: BoxFit.fitWidth,
                   ),
-
                 ),
               ),
-              GenText("Versi "+buildNumber, style: TextStyle(color: Colors.black45),),
-              SizedBox(height: 20,)
-
+              GenText(
+                "Versi " + buildNumber,
+                style: TextStyle(color: Colors.black45),
+              ),
+              SizedBox(
+                height: 20,
+              )
             ],
           ),
         ),
